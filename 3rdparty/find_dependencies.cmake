@@ -1182,8 +1182,6 @@ if(BUILD_GUI)
                 imgui_tables.cpp
                 imgui_widgets.cpp
                 imgui.cpp
-            DEPENDS
-                ext_imgui
         )
         list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_CUSTOM Open3D::3rdparty_imgui)
     else()
@@ -1313,6 +1311,10 @@ if(BUILD_GUI)
             # search path. LLVM version must be >= 7 to compile Filament.
             if (NOT CLANG_LIBDIR)
                 set(ubuntu_default_llvm_lib_dirs
+                    /usr/lib/llvm-19/lib
+                    /usr/lib/llvm-18/lib
+                    /usr/lib/llvm-17/lib
+                    /usr/lib/llvm-16/lib
                     /usr/lib/llvm-15/lib
                     /usr/lib/llvm-14/lib
                     /usr/lib/llvm-13/lib
@@ -1339,6 +1341,10 @@ if(BUILD_GUI)
             # is not enforced by CMake.
             if (NOT CLANG_LIBDIR)
                 find_library(CPPABI_LIBRARY c++abi PATH_SUFFIXES
+                             llvm-19/lib
+                             llvm-18/lib
+                             llvm-17/lib
+                             llvm-16/lib
                              llvm-15/lib
                              llvm-14/lib
                              llvm-13/lib
@@ -1556,7 +1562,9 @@ if(OPEN3D_USE_ONEAPI_PACKAGES)
         TARGETS TBB::tbb
     )
     list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_SYSTEM Open3D::3rdparty_tbb)
-
+    target_compile_definitions(3rdparty_tbb INTERFACE OPEN3D_USE_ONEAPI_PACKAGES=1)
+    target_compile_definitions(3rdparty_tbb INTERFACE _PSTL_UDR_PRESENT=0)
+    target_compile_definitions(3rdparty_tbb INTERFACE _PSTL_UDS_PRESENT=0)
     # 2. oneDPL
     # /opt/intel/oneapi/dpl/latest/lib/cmake/oneDPL
     open3d_find_package_3rdparty_library(3rdparty_onedpl
