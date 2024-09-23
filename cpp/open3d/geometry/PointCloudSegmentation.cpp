@@ -6,6 +6,7 @@
 // ----------------------------------------------------------------------------
 
 #include <tbb/parallel_for.h>
+#include <tbb/spin_mutex.h>
 #include <tbb/spin_rw_mutex.h>
 
 #include <Eigen/Dense>
@@ -29,30 +30,28 @@ namespace geometry {
 template <typename T>
 class RandomSampler {
 public:
-    explicit RandomSampler(const size_t total_size) : total_size_(total_size) {}
+    explicit RandomSampler(const std::size_t total_size)
+        : dist(0, total_size - 1) {}
 
-    std::vector<T> operator()(size_t sample_size) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        std::vector<T> samples;
-        samples.reserve(sample_size);
+    std::vector<T> operator()(std::size_t sample_size) {
+        std::vector<T> indices;
+        indices.reserve(sample_size);
 
-        size_t valid_sample = 0;
-        while (valid_sample < sample_size) {
-            const size_t idx = utility::random::RandUint32() % total_size_;
+        tbb::spin_mutex::scoped_lock lock(utility::random::GetMutex());
+        while (indices.size() < sample_size) {
+            const T idx = dist(utility::random::GetEngine());
             // Well, this is slow. But typically the sample_size is small.
-            if (std::find(samples.begin(), samples.end(), idx) ==
-                samples.end()) {
-                samples.push_back(idx);
-                valid_sample++;
+            if (std::find(indices.begin(), indices.end(), idx) ==
+                indices.end()) {
+                indices.emplace_back(idx);
             }
         }
 
-        return samples;
+        return indices;
     }
 
 private:
-    size_t total_size_;
-    std::mutex mutex_;
+    std::uniform_int_distribution<T> dist;
 };
 
 /// \class RANSACResult
@@ -171,12 +170,6 @@ std::tuple<Eigen::Vector4d, std::vector<size_t>> PointCloud::SegmentPlane(
 
     size_t num_points = points_.size();
     RandomSampler<size_t> sampler(num_points);
-    // Pre-generate all random samples before entering the parallel region
-    std::vector<std::vector<size_t>> all_sampled_indices;
-    all_sampled_indices.reserve(num_iterations);
-    for (int i = 0; i < num_iterations; i++) {
-        all_sampled_indices.push_back(sampler(ransac_n));
-    }
 
     // Return if ransac_n is less than the required plane model parameters.
     if (ransac_n < 3) {
@@ -204,8 +197,7 @@ std::tuple<Eigen::Vector4d, std::vector<size_t>> PointCloud::SegmentPlane(
                         continue;
                     }
 
-        // Access the pre-generated sampled indices
-        std::vector<size_t> inliers = all_sampled_indices[i];
+                    std::vector<std::size_t> inliers = sampler(ransac_n);
 
                     // Fit model to num_model_parameters randomly selected
                     // points among the inliers.

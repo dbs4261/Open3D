@@ -308,19 +308,17 @@ struct RANSACCorrespondenceReduction {
                                     pcd, target, corres, max_distance,
                                     transformation);
 
-                    // Update exit condition if necessary
+                    // Update exit condition if necessary.
+                    // If confidence is 1.0, then it is safely inf, we always
+                    // consume all the iterations.
                     double est_k_local_d = log_confidence /
-                            std::log(1.0 -
-                                     std::pow(corres_inlier_ratio, ransac_n));
-                    est_k_local_d = est_k_local_d < 0 ? est_k_local : est_k_local_d;
-                    // This prevents having a negative number of iterations:
-                    // est_k_local_d = -inf if corres_inlier_ratio = 0.0
-                    est_k_local_d =
-                            est_k_local_d < 0 ? est_k_local : est_k_local_d;
-                    est_k_local =
-                            est_k_local_d < est_k_global
-                                    ? static_cast<int>(std::ceil(est_k_local_d))
-                                    : est_k_local;
+                        std::log(1.0 - std::pow(corres_inlier_ratio, ransac_n));
+                    if (est_k_local_d < 0) {
+                        est_k_local_d = est_k_local;
+                    }
+                    if (est_k_local_d < est_k_global) {
+                        est_k_local = std::ceil(est_k_local_d);
+                    }
                     utility::LogDebug(
                             "Thread {:06d}: registration fitness={:.3f}, "
                             "corres inlier ratio={:.3f}, Est. max k = {}",
@@ -372,7 +370,8 @@ RegistrationResult RegistrationRANSACBasedOnCorrespondence(
     auto best_result = std::move(reducer.best_result);
     utility::LogDebug(
             "RANSAC exits after {:d} validations. Best inlier ratio {:e}, "
-            "RMSE {:e}", total_validation.load(), best_result.fitness_,
+            "RMSE {:e}",
+            total_validation.load(), best_result.fitness_,
             best_result.inlier_rmse_);
     return best_result;
 }

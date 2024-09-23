@@ -17,15 +17,16 @@ namespace utility {
 
 class ProgressBar {
 public:
-    ProgressBar(size_t expected_count,
+    ProgressBar(std::size_t expected_count,
                 std::string progress_info,
                 bool active = false);
-    void Reset(size_t expected_count, std::string progress_info, bool active);
+    void Reset(std::size_t expected_count, std::string progress_info, bool active);
     inline ProgressBar& operator++() { return *this += 1; };
     virtual ProgressBar& operator+=(std::size_t n);
     void SetCurrentCount(size_t n);
     void UpdateBar();
     inline std::size_t GetCurrentCount() const { return current_count_; }
+    virtual ~ProgressBar() = default;
 
 protected:
     static constexpr size_t resolution_ = 40;
