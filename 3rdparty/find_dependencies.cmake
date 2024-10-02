@@ -1568,7 +1568,7 @@ if(OPEN3D_USE_ONEAPI_PACKAGES)
         PACKAGE TBB
         TARGETS TBB::tbb
     )
-    list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_SYSTEM Open3D::3rdparty_tbb)
+    list(APPEND Open3D_3RDPARTY_PUBLIC_TARGETS_FROM_SYSTEM Open3D::3rdparty_tbb)
 
 else(OPEN3D_USE_ONEAPI_PACKAGES)
     # MKL/BLAS
@@ -1713,9 +1713,9 @@ else(OPEN3D_USE_ONEAPI_PACKAGES)
         add_library(Open3D::3rdparty_tbb ALIAS 3rdparty_tbb)
         target_link_libraries(3rdparty_tbb INTERFACE TBB::tbb)
         install(TARGETS 3rdparty_tbb EXPORT ${PROJECT_NAME}Targets)
-        list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_CUSTOM Open3D::3rdparty_tbb)
+        list(APPEND Open3D_3RDPARTY_PUBLIC_TARGETS_FROM_CUSTOM Open3D::3rdparty_tbb)
     else()
-        list(APPEND Open3D_3RDPARTY_PRIVATE_TARGETS_FROM_SYSTEM Open3D::3rdparty_tbb)
+        list(APPEND Open3D_3RDPARTY_PUBLIC_TARGETS_FROM_SYSTEM Open3D::3rdparty_tbb)
     endif()
 
 endif(OPEN3D_USE_ONEAPI_PACKAGES)
