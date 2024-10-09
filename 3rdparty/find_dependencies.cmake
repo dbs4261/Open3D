@@ -158,6 +158,8 @@ function(open3d_build_3rdparty_library name)
     add_library(${PROJECT_NAME}::${name} ALIAS ${name})
 endfunction()
 
+get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
 # CMake arguments for configuring ExternalProjects. Use the second _hidden
 # version by default.
 set(ExternalProject_CMAKE_ARGS
@@ -172,7 +174,7 @@ set(ExternalProject_CMAKE_ARGS
     -DCMAKE_INSTALL_LIBDIR=${Open3D_INSTALL_LIB_DIR}
     # Always build 3rd party code in Release mode. Ignored by multi-config
     # generators (XCode, MSVC). MSVC needs matching config anyway.
-    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_BUILD_TYPE=$<IF:$<BOOL:${IS_MULTI_CONFIG}>,$<CONFIG>,Release>
     -DCMAKE_POLICY_DEFAULT_CMP0091:STRING=NEW
     -DCMAKE_MSVC_RUNTIME_LIBRARY:STRING=${CMAKE_MSVC_RUNTIME_LIBRARY}
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
