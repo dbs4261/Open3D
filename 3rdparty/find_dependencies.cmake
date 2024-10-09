@@ -859,8 +859,9 @@ endif()
 # - openssl.cmake needs to be included before curl.cmake, for the
 #   BORINGSSL_ROOT_DIR variable.
 if(USE_SYSTEM_CURL)
-    open3d_pkg_config_3rdparty_library(3rdparty_curl
-        SEARCH_ARGS libcurl
+    open3d_find_package_3rdparty_library(3rdparty_curl
+            PACKAGE CURL
+            TARGETS CURL::libcurl
     )
     if(NOT 3rdparty_curl_FOUND)
         set(USE_SYSTEM_CURL OFF)
