@@ -854,6 +854,15 @@ if (BUILD_LIBREALSENSE)
     endif()
 endif()
 
+include(${Open3D_3RDPARTY_DIR}/zlib/zlib.cmake)
+open3d_import_3rdparty_library(3rdparty_zlib
+        HIDDEN
+        INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS}
+        LIB_DIR      ${ZLIB_LIB_DIR}
+        LIBRARIES    ${ZLIB_LIBRARIES}
+        DEPENDS      ext_zlib
+)
+
 # Curl
 # - Curl should be linked before PNG, otherwise it will have undefined symbols.
 # - openssl.cmake needs to be included before curl.cmake, for the
@@ -927,15 +936,6 @@ if(USE_SYSTEM_PNG)
     endif()
 endif()
 if(NOT USE_SYSTEM_PNG)
-    include(${Open3D_3RDPARTY_DIR}/zlib/zlib.cmake)
-    open3d_import_3rdparty_library(3rdparty_zlib
-        HIDDEN
-        INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS}
-        LIB_DIR      ${ZLIB_LIB_DIR}
-        LIBRARIES    ${ZLIB_LIBRARIES}
-        DEPENDS      ext_zlib
-    )
-
     include(${Open3D_3RDPARTY_DIR}/libpng/libpng.cmake)
     open3d_import_3rdparty_library(3rdparty_png
         INCLUDE_DIRS ${LIBPNG_INCLUDE_DIRS}
