@@ -1567,6 +1567,7 @@ if(OPEN3D_USE_ONEAPI_PACKAGES)
     open3d_find_package_3rdparty_library(3rdparty_tbb
         PACKAGE TBB
         TARGETS TBB::tbb
+        PUBLIC
     )
     list(APPEND Open3D_3RDPARTY_PUBLIC_TARGETS_FROM_SYSTEM Open3D::3rdparty_tbb)
 
@@ -1702,6 +1703,7 @@ else(OPEN3D_USE_ONEAPI_PACKAGES)
         open3d_find_package_3rdparty_library(3rdparty_tbb
             PACKAGE TBB
             TARGETS TBB::tbb
+            PUBLIC
         )
         if(NOT 3rdparty_tbb_FOUND)
             set(USE_SYSTEM_TBB OFF)
